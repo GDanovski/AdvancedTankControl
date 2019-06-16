@@ -62,9 +62,9 @@ byte mac[6];
 unsigned char bmpHeader[BMP::headerSize];
 
 // setting PWM properties
-const int Servo1Channel = 1;
-const int Servo2Channel = 2;
-const int Servo3Channel = 3;
+const int Servo1Channel = 10;
+const int Servo2Channel = 11;
+const int Servo3Channel = 12;
 const int ServoMin = 30;
 const int ServoMax = 125;
 const int freq = 50;//50 Hz

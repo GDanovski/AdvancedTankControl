@@ -149,6 +149,14 @@ namespace AdvancedTankControl
                         button_S3High.PerformClick();
                         e.Handled = true;
                         break;
+                    case Keys.Oemplus:
+                        button_ledOn.PerformClick();
+                        e.Handled = true;
+                        break;
+                    case Keys.OemMinus:
+                        button_LedOff.PerformClick();
+                        e.Handled = true;
+                        break;
                     default:
                         break;
                 }
