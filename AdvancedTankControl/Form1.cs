@@ -266,8 +266,10 @@ namespace AdvancedTankControl
         {
             if (e.ProgressPercentage == 0)
             {
-                pictureBox1.Image = BMPProcessor.GetBmp(data, pictureBox1.Size);
-                
+                Image flipImage = BMPProcessor.GetBmp(data, pictureBox1.Size);
+                flipImage.RotateFlip(RotateFlipType.Rotate180FlipNone);
+                pictureBox1.Image = flipImage;
+
                 Application.DoEvents();
             }
             else if (e.ProgressPercentage == 1)
