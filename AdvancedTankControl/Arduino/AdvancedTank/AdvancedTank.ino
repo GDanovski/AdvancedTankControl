@@ -7,17 +7,17 @@
 #include <WiFiClient.h>
 
 //WI-Fi settings
-#define ssid1        "network name" //ssid
-#define password1    "password" //password
+#define ssid1        "" //ssid
+#define password1    "" //password
 
-#define ssid2        "network name" //ssid
-#define password2    "password" //password
+#define ssid2        "" //ssid
+#define password2    "" //password
 
-#define ssid3        "network name" //ssid
-#define password3    "password" //password
+#define ssid3        "" //ssid
+#define password3    "" //password
 
 //define camera pins
-
+bool cameraON = true;//change to true to activate the cammera
 const int SIOD = 21; //SDA
 const int SIOC = 22; //SCL
 
@@ -191,10 +191,17 @@ void serve()
           }   
            
           // Send the image
-          camera->oneFrame();
-          delay(20);
-          client.write(camera->frame, camera->xres * camera->yres * 2);
-                            
+          if(cameraON == true)
+          {
+            camera->oneFrame();
+            delay(20);
+            client.write(camera->frame, camera->xres * camera->yres * 2);
+          }
+          else
+          {
+             delay(20);
+             client.write(";");              
+          }
         }
         else
         {
@@ -275,6 +282,12 @@ void serve()
        } 
       else if(val == "S3"){
         ledcWrite(Servo3Channel, servo);
+      }
+      else if(val == "CY"){
+        cameraON = true;
+      }
+       else if(val == "CN"){
+        cameraON = false;
       }
     
   }

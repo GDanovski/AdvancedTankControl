@@ -29,6 +29,9 @@
         private void InitializeComponent()
         {
             this.panel1 = new System.Windows.Forms.Panel();
+            this.button_FPS = new System.Windows.Forms.Button();
+            this.textBox_FPS = new System.Windows.Forms.TextBox();
+            this.label8 = new System.Windows.Forms.Label();
             this.button_Disconnect = new System.Windows.Forms.Button();
             this.button_Connect = new System.Windows.Forms.Button();
             this.textBox1 = new System.Windows.Forms.TextBox();
@@ -63,9 +66,9 @@
             this.button_LR = new System.Windows.Forms.Button();
             this.button_LS = new System.Windows.Forms.Button();
             this.button_LF = new System.Windows.Forms.Button();
-            this.button_FPS = new System.Windows.Forms.Button();
-            this.textBox_FPS = new System.Windows.Forms.TextBox();
-            this.label8 = new System.Windows.Forms.Label();
+            this.button_cameraON = new System.Windows.Forms.Button();
+            this.button_cameraOFF = new System.Windows.Forms.Button();
+            this.label9 = new System.Windows.Forms.Label();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
@@ -82,6 +85,9 @@
             // panel1
             // 
             this.panel1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.panel1.Controls.Add(this.label9);
+            this.panel1.Controls.Add(this.button_cameraOFF);
+            this.panel1.Controls.Add(this.button_cameraON);
             this.panel1.Controls.Add(this.button_FPS);
             this.panel1.Controls.Add(this.textBox_FPS);
             this.panel1.Controls.Add(this.label8);
@@ -92,8 +98,37 @@
             this.panel1.Dock = System.Windows.Forms.DockStyle.Top;
             this.panel1.Location = new System.Drawing.Point(0, 0);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(728, 30);
+            this.panel1.Size = new System.Drawing.Size(1053, 30);
             this.panel1.TabIndex = 0;
+            // 
+            // button_FPS
+            // 
+            this.button_FPS.Location = new System.Drawing.Point(524, 2);
+            this.button_FPS.Name = "button_FPS";
+            this.button_FPS.Size = new System.Drawing.Size(58, 23);
+            this.button_FPS.TabIndex = 6;
+            this.button_FPS.Text = "Apply";
+            this.button_FPS.UseVisualStyleBackColor = true;
+            this.button_FPS.Click += new System.EventHandler(this.button_FPS_Click);
+            // 
+            // textBox_FPS
+            // 
+            this.textBox_FPS.Location = new System.Drawing.Point(467, 4);
+            this.textBox_FPS.Name = "textBox_FPS";
+            this.textBox_FPS.Size = new System.Drawing.Size(51, 20);
+            this.textBox_FPS.TabIndex = 5;
+            this.textBox_FPS.Text = "1";
+            // 
+            // label8
+            // 
+            this.label8.AutoSize = true;
+            this.label8.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label8.ForeColor = System.Drawing.Color.White;
+            this.label8.Location = new System.Drawing.Point(430, 7);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(34, 13);
+            this.label8.TabIndex = 4;
+            this.label8.Text = "FPS:";
             // 
             // button_Disconnect
             // 
@@ -141,7 +176,7 @@
             this.panel2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel2.Location = new System.Drawing.Point(0, 30);
             this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(728, 270);
+            this.panel2.Size = new System.Drawing.Size(1053, 270);
             this.panel2.TabIndex = 2;
             // 
             // pictureBox1
@@ -160,7 +195,7 @@
             this.panel3.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.panel3.Location = new System.Drawing.Point(0, 300);
             this.panel3.Name = "panel3";
-            this.panel3.Size = new System.Drawing.Size(728, 200);
+            this.panel3.Size = new System.Drawing.Size(1053, 200);
             this.panel3.TabIndex = 3;
             // 
             // panel5
@@ -170,7 +205,7 @@
             this.panel5.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel5.Location = new System.Drawing.Point(312, 0);
             this.panel5.Name = "panel5";
-            this.panel5.Size = new System.Drawing.Size(416, 200);
+            this.panel5.Size = new System.Drawing.Size(741, 200);
             this.panel5.TabIndex = 1;
             // 
             // panel6
@@ -195,7 +230,7 @@
             this.panel6.Controls.Add(this.button_ledOn);
             this.panel6.Location = new System.Drawing.Point(25, 13);
             this.panel6.Name = "panel6";
-            this.panel6.Size = new System.Drawing.Size(379, 173);
+            this.panel6.Size = new System.Drawing.Size(704, 173);
             this.panel6.TabIndex = 3;
             // 
             // trackBar_S3
@@ -206,7 +241,7 @@
             this.trackBar_S3.Maximum = 125;
             this.trackBar_S3.Minimum = 30;
             this.trackBar_S3.Name = "trackBar_S3";
-            this.trackBar_S3.Size = new System.Drawing.Size(187, 29);
+            this.trackBar_S3.Size = new System.Drawing.Size(512, 29);
             this.trackBar_S3.TabIndex = 17;
             this.trackBar_S3.TickStyle = System.Windows.Forms.TickStyle.None;
             this.trackBar_S3.Value = 30;
@@ -219,7 +254,7 @@
             this.trackBar_S2.Maximum = 125;
             this.trackBar_S2.Minimum = 30;
             this.trackBar_S2.Name = "trackBar_S2";
-            this.trackBar_S2.Size = new System.Drawing.Size(187, 29);
+            this.trackBar_S2.Size = new System.Drawing.Size(512, 29);
             this.trackBar_S2.TabIndex = 16;
             this.trackBar_S2.TickStyle = System.Windows.Forms.TickStyle.None;
             this.trackBar_S2.Value = 30;
@@ -232,7 +267,7 @@
             this.trackBar_S1.Maximum = 125;
             this.trackBar_S1.Minimum = 30;
             this.trackBar_S1.Name = "trackBar_S1";
-            this.trackBar_S1.Size = new System.Drawing.Size(187, 29);
+            this.trackBar_S1.Size = new System.Drawing.Size(512, 29);
             this.trackBar_S1.TabIndex = 15;
             this.trackBar_S1.TickStyle = System.Windows.Forms.TickStyle.None;
             this.trackBar_S1.Value = 30;
@@ -456,40 +491,40 @@
             this.button_LF.Text = "Forward";
             this.button_LF.UseVisualStyleBackColor = true;
             // 
-            // button_FPS
+            // button_cameraON
             // 
-            this.button_FPS.Location = new System.Drawing.Point(524, 2);
-            this.button_FPS.Name = "button_FPS";
-            this.button_FPS.Size = new System.Drawing.Size(58, 23);
-            this.button_FPS.TabIndex = 6;
-            this.button_FPS.Text = "Apply";
-            this.button_FPS.UseVisualStyleBackColor = true;
-            this.button_FPS.Click += new System.EventHandler(this.button_FPS_Click);
+            this.button_cameraON.Location = new System.Drawing.Point(705, 4);
+            this.button_cameraON.Name = "button_cameraON";
+            this.button_cameraON.Size = new System.Drawing.Size(75, 23);
+            this.button_cameraON.TabIndex = 7;
+            this.button_cameraON.Text = "ON";
+            this.button_cameraON.UseVisualStyleBackColor = true;
             // 
-            // textBox_FPS
+            // button_cameraOFF
             // 
-            this.textBox_FPS.Location = new System.Drawing.Point(467, 4);
-            this.textBox_FPS.Name = "textBox_FPS";
-            this.textBox_FPS.Size = new System.Drawing.Size(51, 20);
-            this.textBox_FPS.TabIndex = 5;
-            this.textBox_FPS.Text = "6";
+            this.button_cameraOFF.Location = new System.Drawing.Point(786, 4);
+            this.button_cameraOFF.Name = "button_cameraOFF";
+            this.button_cameraOFF.Size = new System.Drawing.Size(75, 23);
+            this.button_cameraOFF.TabIndex = 8;
+            this.button_cameraOFF.Text = "OFF";
+            this.button_cameraOFF.UseVisualStyleBackColor = true;
             // 
-            // label8
+            // label9
             // 
-            this.label8.AutoSize = true;
-            this.label8.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label8.ForeColor = System.Drawing.Color.White;
-            this.label8.Location = new System.Drawing.Point(430, 7);
-            this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(34, 13);
-            this.label8.TabIndex = 4;
-            this.label8.Text = "FPS:";
+            this.label9.AutoSize = true;
+            this.label9.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label9.ForeColor = System.Drawing.Color.White;
+            this.label9.Location = new System.Drawing.Point(638, 9);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(53, 13);
+            this.label9.TabIndex = 9;
+            this.label9.Text = "Camera:";
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(728, 500);
+            this.ClientSize = new System.Drawing.Size(1053, 500);
             this.Controls.Add(this.panel2);
             this.Controls.Add(this.panel3);
             this.Controls.Add(this.panel1);
@@ -556,6 +591,9 @@
         private System.Windows.Forms.Button button_FPS;
         private System.Windows.Forms.TextBox textBox_FPS;
         private System.Windows.Forms.Label label8;
+        private System.Windows.Forms.Label label9;
+        private System.Windows.Forms.Button button_cameraOFF;
+        private System.Windows.Forms.Button button_cameraON;
     }
 }
 

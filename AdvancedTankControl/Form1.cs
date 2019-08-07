@@ -43,6 +43,8 @@ namespace AdvancedTankControl
             trackBar_S1.Tag = "S1";
             trackBar_S2.Tag = "S2";
             trackBar_S3.Tag = "S3";
+            button_cameraON.Tag = "CY";
+            button_cameraOFF.Tag = "CN";
             button_S1Low.Tag = trackBar_S1;
             button_S2Low.Tag = trackBar_S2;
             button_S3Low.Tag = trackBar_S3;
@@ -58,6 +60,8 @@ namespace AdvancedTankControl
             button_RR.Click += Button_SendMessage;
             button_ledOn.Click += Button_SendMessage;
             button_LedOff.Click += Button_SendMessage;
+            button_cameraON.Click += Button_SendMessage;
+            button_cameraOFF.Click += Button_SendMessage;
 
             trackBar_S1.ValueChanged += TrackBar_SendMessage;
             trackBar_S2.ValueChanged += TrackBar_SendMessage;
@@ -295,12 +299,14 @@ namespace AdvancedTankControl
 
                     this.server.Send(Encoding.ASCII.GetBytes(cmd + ";"));
                     cmd = "";
-                    this.data = new byte[38400];
-                    
-                    recv = server.Receive(this.data);
-                    ((BackgroundWorker)sender).ReportProgress(0);
+
+                    byte[] newData = new byte[38400];
+                                        
+                    recv = server.Receive(newData);
 
                     Thread.Sleep((int)(1000/FPS));
+                    this.data = newData;
+                    ((BackgroundWorker)sender).ReportProgress(0);
                 }
             }
             catch { }
