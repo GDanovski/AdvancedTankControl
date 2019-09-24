@@ -15,14 +15,20 @@ namespace AdvancedTankControl
 {
     public partial class Form1 : Form
     {
+        string Voltage = "";
         private const int startServo = 30;
         private const int stopServo = 125;
-        private const int PORT = 80;
+        private const int PORT1 = 81;
+        private const int PORT2 = 80;
         private byte[] data=new byte[38400];
         private string cmd;
+        private string cmdCAM;
         Socket server=null;
         IPEndPoint ipep=null;
-        private double FPS = 5;
+        Socket serverCAM = null;
+        IPEndPoint ipepCAM = null;
+        private double FPS = 2;
+        private bool VGA = false;
         public Form1()
         {
             InitializeComponent();
@@ -31,6 +37,10 @@ namespace AdvancedTankControl
         {
             this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             textBox_FPS.Text = FPS.ToString();
+            
+            button_Connect.Tag = textBox1;
+            button_Connect1.Tag = textBox2;
+            button_Connect1.Click += button_Connect_Click;
             //two letter code
             button_LF.Tag = "LF";
             button_LS.Tag = "LS";
@@ -45,6 +55,14 @@ namespace AdvancedTankControl
             trackBar_S3.Tag = "S3";
             button_cameraON.Tag = "CY";
             button_cameraOFF.Tag = "CN";
+            button_ESP32_CAM_On.Tag = "EY";
+            button_ESP32_CAM_Off.Tag = "EN";
+            button_VGA_High.Tag = "QH";
+            button_VGA_Low.Tag = "QL";
+            button_speed_1.Tag = "V1";
+            button_speed_2.Tag = "V2";
+            button_speed_3.Tag = "V3";
+            button_speed_4.Tag = "V4";
             button_S1Low.Tag = trackBar_S1;
             button_S2Low.Tag = trackBar_S2;
             button_S3Low.Tag = trackBar_S3;
@@ -62,6 +80,14 @@ namespace AdvancedTankControl
             button_LedOff.Click += Button_SendMessage;
             button_cameraON.Click += Button_SendMessage;
             button_cameraOFF.Click += Button_SendMessage;
+            button_ESP32_CAM_On.Click += Button_SendMessage;
+            button_ESP32_CAM_Off.Click += Button_SendMessage;
+            button_VGA_High.Click += Button_VGA_SendMessage;
+            button_VGA_Low.Click += Button_VGA_SendMessage;
+            button_speed_1.Click += Button_SendMessage;
+            button_speed_2.Click += Button_SendMessage;
+            button_speed_3.Click += Button_SendMessage;
+            button_speed_4.Click += Button_SendMessage;
 
             trackBar_S1.ValueChanged += TrackBar_SendMessage;
             trackBar_S2.ValueChanged += TrackBar_SendMessage;
@@ -101,7 +127,7 @@ namespace AdvancedTankControl
         }
         void Form1_KeyPress(object sender, KeyEventArgs e)
         {
-            if (!textBox1.Focused)
+            if (!textBox1.Focused && !textBox_FPS.Focused)
             {
                 switch (e.KeyCode)
                 {
@@ -161,6 +187,22 @@ namespace AdvancedTankControl
                         button_LedOff.PerformClick();
                         e.Handled = true;
                         break;
+                    case Keys.F1:
+                        button_speed_1.PerformClick();
+                        e.Handled = true;
+                        break;
+                    case Keys.F2:
+                        button_speed_2.PerformClick();
+                        e.Handled = true;
+                        break;
+                    case Keys.F3:
+                        button_speed_3.PerformClick();
+                        e.Handled = true;
+                        break;
+                    case Keys.F4:
+                        button_speed_4.PerformClick();
+                        e.Handled = true;
+                        break;
                     default:
                         break;
                 }
@@ -175,6 +217,28 @@ namespace AdvancedTankControl
 
             if(btn.Enabled)
                 this.cmd = (string)btn.Tag;
+        }
+        private void Button_VGA_SendMessage(object sender, EventArgs e)
+        {
+            if (server == null) return;
+
+            Button btn = (Button)sender;
+
+            string str = (string)btn.Tag;
+
+            if (str == "QH")
+            {
+                FPS = 2;
+                textBox_FPS.Text = FPS.ToString();
+                VGA = true;
+            }
+            else if (str == "QL")
+                VGA = false;
+
+            if (btn.Enabled)
+                this.cmd = str;
+
+           
         }
         private void ButtonSLow_SendMessage(object sender, EventArgs e)
         {
@@ -210,11 +274,16 @@ namespace AdvancedTankControl
         private void button_Connect_Click(object sender, EventArgs e)
         {            
             //take the new ip
-            string IP = textBox1.Text;
+            string IP =( (TextBox)((Button)sender).Tag).Text;
+            
+            IPEndPoint ipepNew = null;
             //check the ip
             try
             {
-                ipep = new IPEndPoint(IPAddress.Parse(IP), PORT);
+                if ((Button)sender == button_Connect)
+                    ipepNew = new IPEndPoint(IPAddress.Parse(IP), PORT1);
+                else
+                    ipepNew = new IPEndPoint(IPAddress.Parse(IP), PORT2);
             }
             catch
             {
@@ -230,7 +299,10 @@ namespace AdvancedTankControl
             Form1_Resize(this, new EventArgs());
             pictureBox1.Visible = true;
             //start server
-            NetworkClient_Start();
+            if((Button)sender == button_Connect)
+                NetworkClient_Start(ipepNew);
+            else
+                NetworkClient_Start1(ipepNew);
         }
         private void ServoPosition_Reset(TrackBar tb)
         {
@@ -240,37 +312,104 @@ namespace AdvancedTankControl
             tb.Value = startServo;
             tb.Enabled = true;
         }
-        private void NetworkClient_Start()
+        private void NetworkClient_Start(IPEndPoint ipepNew)
         {
-            if (ipep == null) return;
+            if (ipepNew == null) return;
 
-            this.server = new Socket(AddressFamily.InterNetwork,
+            Socket serverNew = new Socket(AddressFamily.InterNetwork,
                            SocketType.Stream, ProtocolType.Tcp);
-
+            
             try
             {
-                server.Connect(ipep);
+               serverNew.Connect(ipepNew);                
             }
-            catch (SocketException e)
+            catch //(SocketException e)
             {
                 MessageBox.Show("Unable to connect to server.");
                 return;
             }
+            //check is this the main ESP
+            /*
+            serverNew.Send(Encoding.ASCII.GetBytes("ID"));
 
-            pictureBox1.Visible = true;
+            byte[] newData = new byte[1280];
 
+            int recv = serverNew.Receive(newData);
+            string str = Encoding.ASCII.GetString(newData);
+            MessageBox.Show(str);*/
             var bgw = new BackgroundWorker();
             bgw.WorkerReportsProgress = true;
-            bgw.DoWork += bgw_doWork;
+            string str = "A";
+            if (str == "A")//Main
+            {
+                this.server = serverNew;
+                this.ipep = ipepNew;
+                bgw.DoWork += bgw_MainDoWork;
+            }
+            else if (str == "B")//Camera
+            {
+                this.serverCAM = serverNew;
+                this.ipepCAM = ipepNew;
+                pictureBox1.Visible = true;                
+                bgw.DoWork += bgw_doWork;
+            }
+
             bgw.ProgressChanged += bgw_ProgressChanged;
 
             bgw.RunWorkerAsync();
         }
+        private void NetworkClient_Start1(IPEndPoint ipepNew)
+        {
+            if (ipepNew == null) return;
+
+            Socket serverNew = new Socket(AddressFamily.InterNetwork,
+                           SocketType.Stream, ProtocolType.Tcp);
+
+            try
+            {
+                serverNew.Connect(ipepNew);
+            }
+            catch 
+            {
+                MessageBox.Show("Unable to connect to server.");
+                return;
+            }
+            //check is this the main ESP
+            /*
+            serverNew.Send(Encoding.ASCII.GetBytes("ID"));
+
+            byte[] newData = new byte[1280];
+
+            int recv = serverNew.Receive(newData);
+            string str = Encoding.ASCII.GetString(newData);
+            MessageBox.Show(str);*/
+            var bgw = new BackgroundWorker();
+            bgw.WorkerReportsProgress = true;
+            string str = "B";
+            if (str == "A")//Main
+            {
+                this.server = serverNew;
+                this.ipep = ipepNew;
+                bgw.DoWork += bgw_MainDoWork;
+            }
+            else if (str == "B")//Camera
+            {
+                this.serverCAM = serverNew;
+                this.ipepCAM = ipepNew;
+                pictureBox1.Visible = true;
+                bgw.DoWork += bgw_doWork;
+            }
+
+            bgw.ProgressChanged += bgw_ProgressChanged;
+
+            bgw.RunWorkerAsync();
+        }
+        #region Camera ESP
         private void bgw_ProgressChanged(Object sender, ProgressChangedEventArgs e)
         {
             if (e.ProgressPercentage == 0)
             {
-                Image flipImage = BMPProcessor.GetBmp(data, pictureBox1.Size);
+                Image flipImage = BMPProcessor.GetBmp(data, pictureBox1.Size,this.VGA);
                 flipImage.RotateFlip(RotateFlipType.Rotate180FlipNone);
                 pictureBox1.Image = flipImage;
 
@@ -278,10 +417,80 @@ namespace AdvancedTankControl
             }
             else if (e.ProgressPercentage == 1)
             {
-                MessageBox.Show("Disconnected from server!");
+                MessageBox.Show("Disconnected from camera server!");
+            }
+            else if (e.ProgressPercentage == 2)
+            {
+                MessageBox.Show("Disconnected from main server!");
+            }
+            else if (e.ProgressPercentage == 3)
+            {
+                if (Voltage == "")
+                {
+                    VoltageESP_label.Text = "ESP battery: --- V";
+                    VoltageMotor_label.Text = "Engine battery: --- V";
+                }
+                else
+                {
+                    string[] vals = Voltage.Split(new string[] { "|" }, StringSplitOptions.None);
+
+                    if (vals.Length != 3) return;
+
+                    VoltageESP_label.Text = "ESP battery: " + vals[1] + " V";
+                    VoltageMotor_label.Text = "Engine battery: " + vals[2] + " V";
+                }
             }
         }
         private void bgw_doWork(Object sender, DoWorkEventArgs e)
+        {
+            int recv;
+            
+            try
+            {
+                while (true)
+                {
+                    if (this.cmdCAM == "exit")
+                    {
+                        this.cmdCAM = "";
+                        break;
+                    }
+                    
+                    if (!this.serverCAM.Connected) serverCAM.Connect(ipepCAM);
+
+                    this.serverCAM.Send(Encoding.ASCII.GetBytes(this.cmdCAM + ";"));
+                    this.cmdCAM = "";
+                    byte[] newData = null;
+                    if(VGA)
+                        newData = new byte[38400];
+                    else
+                        newData = new byte[9600];
+
+                    recv = serverCAM.Receive(newData);
+
+                    Thread.Sleep((int)(1000 / FPS));
+                    this.data = newData;
+                    ((BackgroundWorker)sender).ReportProgress(0);
+                }
+            }
+            catch { }
+
+            if (serverCAM != null)
+            {
+                try
+                {
+                    serverCAM.Shutdown(SocketShutdown.Both);
+                    serverCAM.Close();
+                    serverCAM = null;
+                }
+                catch { }
+                ((BackgroundWorker)sender).ReportProgress(1);
+            }
+
+        }
+        #endregion Camera ESP
+
+        #region Main ESP
+        private void bgw_MainDoWork(Object sender, DoWorkEventArgs e)
         {
             int recv;
 
@@ -303,10 +512,9 @@ namespace AdvancedTankControl
                     byte[] newData = new byte[38400];
                                         
                     recv = server.Receive(newData);
-
-                    Thread.Sleep((int)(1000/FPS));
-                    this.data = newData;
-                    ((BackgroundWorker)sender).ReportProgress(0);
+                    this.Voltage = Encoding.ASCII.GetString(newData);
+                    ((BackgroundWorker)sender).ReportProgress(3);
+                    Thread.Sleep(50);                   
                 }
             }
             catch { }
@@ -320,16 +528,17 @@ namespace AdvancedTankControl
                     server = null;
                 }
                 catch { }
-                ((BackgroundWorker)sender).ReportProgress(1);
+                ((BackgroundWorker)sender).ReportProgress(2);
             }
             
         }
-
+        #endregion Main ESP
         private void button_Disconnect_Click(object sender, EventArgs e)
         {
             if (server == null) return;
             this.cmd = "exit";
-            
+            this.cmdCAM = "exit";
+
             pictureBox1.Visible = false;
         }
 
@@ -342,6 +551,14 @@ namespace AdvancedTankControl
             else
                 MessageBox.Show("Incorrect value!");
 
+        }
+
+        private void button_infoSpeed_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show(string.Join("\n",new string[]{"Speed 1 = 50%",
+                "Speed 2 = 55%",
+                "Speed 3 = 65%",
+                "Speed 4 = 80%" }));
         }
     }
 }

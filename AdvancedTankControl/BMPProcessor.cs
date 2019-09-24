@@ -11,13 +11,18 @@ namespace AdvancedTankControl
 {
     class BMPProcessor
     {
-        public static Bitmap GetBmp(byte[] data, Size size)
+        public static Bitmap GetBmp(byte[] data, Size size, bool VGA)
         {
-            Bitmap bmp = new Bitmap(160, 120, PixelFormat.Format16bppRgb565);
             // Get width and height of bitmap
-            int Width = bmp.Width;
-            int Height = bmp.Height;
-
+            int Width = 160;
+            int Height = 120;
+            if (!VGA)
+            {
+                Width = 80;
+                Height = 60;
+            }
+            //Create bitmap
+            Bitmap bmp = new Bitmap(Width, Height, PixelFormat.Format16bppRgb565);
             // get total locked pixels count
             int PixelCount = Width * Height;
 

@@ -1,7 +1,4 @@
 //Libraries
-#include "OV7670.h"//Camera class
-#include <Adafruit_GFX.h>    // Core graphics library
-#include "BMP.h"//Bitmap class
 #include <WiFi.h>
 #include <WiFiMulti.h>
 #include <WiFiClient.h>
@@ -18,29 +15,14 @@
 
 //define camera pins
 bool cameraON = true;//change to true to activate the cammera
-const int SIOD = 21; //SDA
-const int SIOC = 22; //SCL
-
-const int VSYNC = 34;
-const int HREF = 35;
-
-const int XCLK = 32;
-const int PCLK = 33;
-
-const int D0 = 39;
-const int D1 = 17;
-const int D2 = 16;
-const int D3 = 15;
-const int D4 = 14;
-const int D5 = 36;
-const int D6 = 12;
-const int D7 = 4;
-
+const int camPin=4;//up to start transmiting images
+const int powPin=32;//up to turn on the ESP32-CAM
+const int VGA = 13;//If High - QQVGA, else - QQQVGA
 //define H-brige pins
 const int M1Forward=25;
-const int M1Reverse=26;
+const int M1Reverse=33;
 const int M2Forward=27;
-const int M2Reverse=13;
+const int M2Reverse=26;
 
 //define PWN servo pins
 const int Servo1=18;
@@ -50,24 +32,27 @@ const int Servo3=23;
 //define LED pin
 const int LED = 2;
 
-//Set camera
-OV7670 *camera;
-
 //set server
 WiFiMulti wifiMulti;
-WiFiServer server(80);
+WiFiServer server(81);
 byte mac[6];
-
-//BitMap header
-unsigned char bmpHeader[BMP::headerSize];
+String voltageValue = "vm|0|0";
 
 // setting PWM properties
+const int M1ForwardChannel=1;
+const int M1ReverseChannel=2;
+const int M2ForwardChannel=3;
+const int M2ReverseChannel=4;
+int MSpeed = 550;
+
 const int Servo1Channel = 10;
 const int Servo2Channel = 11;
 const int Servo3Channel = 12;
+
 const int ServoMin = 30;
 const int ServoMax = 125;
 const int freq = 50;//50 Hz
+const int freqM = 5000;//5000 Hz
 const int resolution = 10; //Resolution 8, 10, 12, 15
 
 void setup() {
@@ -87,17 +72,34 @@ void setup() {
   pinMode(Servo1, OUTPUT);
   pinMode(Servo2, OUTPUT);
   pinMode(Servo3, OUTPUT);
+  pinMode (camPin, OUTPUT);
+  pinMode (powPin, OUTPUT);
+  pinMode (VGA, OUTPUT);
 
+  //configurate the camera pin
+  digitalWrite (camPin, LOW); // turn off the pin
+  digitalWrite (powPin, LOW); // turn off the pin
+  digitalWrite (VGA, LOW); // turn off the pin
+  
   //configure LED PWM functionalitites
   ledcSetup(Servo1Channel, freq, resolution);
   ledcSetup(Servo2Channel, freq, resolution);
   ledcSetup(Servo3Channel, freq, resolution);
 
+  ledcSetup(M1ForwardChannel, freqM, resolution);
+  ledcSetup(M1ReverseChannel, freqM, resolution);
+  ledcSetup(M2ForwardChannel, freqM, resolution);
+  ledcSetup(M2ReverseChannel, freqM, resolution);
+
   // attach the PWN channel to the GPIO Servo pins to be controlled
   ledcAttachPin(Servo1, Servo1Channel);
   ledcAttachPin(Servo2, Servo2Channel);
   ledcAttachPin(Servo3, Servo3Channel);
- 
+
+  ledcAttachPin(M1Forward, M1ForwardChannel);
+  ledcAttachPin(M1Reverse, M1ReverseChannel);
+  ledcAttachPin(M2Forward, M2ForwardChannel);
+  ledcAttachPin(M2Reverse, M2ReverseChannel);
   //reset pins
   ResetMyPins();
   digitalWrite(LED,LOW);
@@ -146,12 +148,6 @@ void setup() {
       Serial.println(mac[5],HEX);
   }
 
-  //Start the camera with QQVGA_RGB565 quality
-  camera = new OV7670(OV7670::Mode::QQVGA_RGB565, SIOD, SIOC, VSYNC, HREF, XCLK, PCLK, D0, D1, D2, D3, D4, D5, D6, D7);
-
-  //create bitmap header
-  BMP::construct16BitHeader(bmpHeader, camera->xres, camera->yres);
-  
   //start the server
   server.begin();
   //start the LED
@@ -162,8 +158,6 @@ void setup() {
 }
 
 void loop() { 
-  
-   
   //check for incomming information and send the image
   serve();
 }
@@ -171,11 +165,14 @@ void loop() {
 void serve()
 {
   WiFiClient client = server.available();
+  int counter = 0;  
   bool b = true;
   if (client) 
   {
     Serial.println("New Client.");
+    digitalWrite (powPin, LOW); // turn off the pin
     String currentLine = "";
+    ACPVoltageDetect();
     while (client.connected()) 
     {
       if (client.available()) 
@@ -183,24 +180,30 @@ void serve()
         char c = client.read();
         
         if (c == ';')
-        {          
-          if(currentLine != "")
+        {  
+          if(currentLine == "ID")
           {
-            ReadMyComand(currentLine);
-            currentLine = "";
-          }   
-           
-          // Send the image
-          if(cameraON == true)
-          {
-            camera->oneFrame();
-            delay(20);
-            client.write(camera->frame, camera->xres * camera->yres * 2);
+             currentLine = ""; 
+             delay(20);              
+             client.println("A"); 
           }
           else
-          {
-             delay(20);
-             client.write(";");              
+          {        
+            if(currentLine != "")
+            {
+              ReadMyComand(currentLine);
+              currentLine = "";
+            }                       
+            delay(20);
+            
+            counter++;
+            if(counter >= 500)
+             {
+                ACPVoltageDetect();
+                counter = 0;
+             }
+            
+            client.println(voltageValue);              
           }
         }
         else
@@ -209,7 +212,7 @@ void serve()
         }       
       }
     }
-    //reset pins
+    //reset pins    
      ResetMyPins();
     // close the connection:
     client.stop();
@@ -219,11 +222,13 @@ void serve()
   void ResetMyPins()
   {
   Serial.println("Setting pin value...");
-  digitalWrite (M1Forward,  LOW);
-  digitalWrite(M1Reverse, LOW);
-  digitalWrite (M2Forward, LOW);
-  digitalWrite (M2Reverse, LOW);
-
+  ledcWrite(M1ForwardChannel, 0);
+  ledcWrite(M1ReverseChannel, 0);
+  ledcWrite(M2ForwardChannel, 0);
+  ledcWrite(M2ReverseChannel, 0);
+  digitalWrite (powPin, LOW); // turn off the pin
+  digitalWrite (camPin, LOW); // turn off the pin
+  MSpeed = 500;
   }
   void ReadMyComand(String cmd1)
   { 
@@ -241,32 +246,32 @@ void serve()
     }
      
     if(val == "LF"){
-        digitalWrite (M1Reverse, LOW);
+        ledcWrite(M1ReverseChannel, 0);
         delay(20);   
-        digitalWrite (M1Forward, HIGH);
+        ledcWrite(M1ForwardChannel, MSpeed);
    }
     else if(val == "LS"){
-        digitalWrite (M1Reverse, LOW);  
-        digitalWrite (M1Forward, LOW);
+        ledcWrite(M1ForwardChannel, 0);
+        ledcWrite(M1ReverseChannel, 0);
     }
      else if(val == "LR"){
-        digitalWrite (M1Forward, LOW);
+        ledcWrite(M1ForwardChannel, 0);
         delay(20);   
-        digitalWrite (M1Reverse, HIGH);
+        ledcWrite(M1ReverseChannel, MSpeed);
       }  
       else if(val =="RF"){
-        digitalWrite (M2Reverse, LOW);
+        ledcWrite(M2ReverseChannel, 0);
         delay(20);   
-        digitalWrite (M2Forward, HIGH);
+        ledcWrite(M2ForwardChannel, MSpeed);
        } 
      else if(val == "RS"){
-        digitalWrite (M2Reverse, LOW);  
-        digitalWrite (M2Forward, LOW);
+        ledcWrite(M2ForwardChannel, 0);
+        ledcWrite(M2ReverseChannel, 0);
        } 
       else if(val =="RR"){
-        digitalWrite (M2Forward, LOW);
+        ledcWrite(M2ForwardChannel, 0);
         delay(20);   
-        digitalWrite (M2Reverse, HIGH);
+        ledcWrite(M2ReverseChannel, MSpeed);
       }  
      else if(val =="LY"){
         digitalWrite (LED, HIGH);
@@ -285,9 +290,68 @@ void serve()
       }
       else if(val == "CY"){
         cameraON = true;
+        digitalWrite (camPin, HIGH); // turn off the pin
       }
        else if(val == "CN"){
         cameraON = false;
+        digitalWrite (camPin, LOW); // turn off the pin
       }
+       else if(val == "EY"){
+        digitalWrite (powPin, HIGH); // turn on the pin
+      }
+      else if(val == "EN"){
+        digitalWrite (powPin, LOW); // turn off the pin
+      }
+      else if(val == "QH")
+      {
+        digitalWrite (VGA, HIGH); // turn on the pin
+      }
+      else if(val == "QL")
+      {
+        digitalWrite (VGA, LOW); // turn off the pin
+      }
+       else if(val == "V1"){
+        MSpeed = 500;
+      }
+       else if(val == "V2"){
+        MSpeed = 550;
+      }
+       else if(val == "V3"){
+        MSpeed = 650;
+      }
+       else if(val == "V4"){
+        MSpeed = 800;
+      }
+  }
+  void ACPVoltageDetect(){
     
+   // take a number of analog samples and add them up
+   float sum1 = 0;
+   float sum2 = 0;
+   int counterVoltageMater = 0;
+   unsigned char sample_count = 0; // current sample number
+   int NUM_SAMPLES = 10;
+   
+    while (sample_count < NUM_SAMPLES) {         
+        sum1 += analogRead(A6);//p34
+        sum2 += analogRead(A7);//p34
+        sample_count++;
+        delay(10);
+    }
+    // calculate the voltage
+    // use 3.3 for a 5.0V ADC reference voltage
+    // 3.8 V is the calibrated reference voltage
+    float voltage1 = ((float)sum1 / (float)NUM_SAMPLES * 3.3) / 4096.0;
+    float voltage2 = ((float)sum2 / (float)NUM_SAMPLES * 3.3) / 4096.0;
+    // send voltage for display on Serial Monitor
+    // voltage multiplied by 2 when using voltage divider that
+    // divides by 2. 
+    // value
+     voltage1 = voltage1*2;
+     voltage2 = voltage2*2;
+     
+     String stringThree = String("vm|");
+     stringThree = stringThree + voltage1 + "|"+ voltage2;
+     voltageValue = stringThree;
+     Serial.println(voltageValue);    
   }
