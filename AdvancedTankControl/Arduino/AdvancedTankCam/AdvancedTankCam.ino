@@ -153,8 +153,9 @@ void serve()
             client.println("HTTP/1.1 200 OK");
             client.println("Content-type:text/html");
             client.println();
+            // filter:FlipH
             client.print(
-              "<style>body{margin: 0}\nimg{height: 100%; width: auto; filter:FlipH}</style>"
+              "<style>body{margin: 0}\nimg{height: 100%; width: auto;}</style>"
               "<img id='a' src='/camera' onload='this.style.display=\"initial\"; var b = document.getElementById(\"b\"); b.style.display=\"none\"; b.src=\"camera?\"+Date.now(); '>"
               "<img id='b' style='display: none' src='/camera' onload='this.style.display=\"initial\"; var a = document.getElementById(\"a\"); a.style.display=\"none\"; a.src=\"camera?\"+Date.now(); '>");
             client.println();

@@ -436,8 +436,8 @@ namespace AdvancedTankControl
 
                     if (vals.Length != 3) return;
 
-                    VoltageESP_label.Text = "ESP battery: " + vals[1] + " V";
-                    VoltageMotor_label.Text = "Engine battery: " + vals[2] + " V";
+                    VoltageESP_label.Text = "ESP battery: " + vals[2] + " V";
+                    VoltageMotor_label.Text = "Engine battery: " + vals[1] + " V";
                 }
             }
         }
