@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             this.panel1 = new System.Windows.Forms.Panel();
             this.label12 = new System.Windows.Forms.Label();
             this.button_VGA_Low = new System.Windows.Forms.Button();
@@ -40,6 +41,9 @@
             this.label9 = new System.Windows.Forms.Label();
             this.button_cameraOFF = new System.Windows.Forms.Button();
             this.button_cameraON = new System.Windows.Forms.Button();
+            this.button_FPS = new System.Windows.Forms.Button();
+            this.textBox_FPS = new System.Windows.Forms.TextBox();
+            this.label8 = new System.Windows.Forms.Label();
             this.button_Disconnect = new System.Windows.Forms.Button();
             this.button_Connect = new System.Windows.Forms.Button();
             this.textBox1 = new System.Windows.Forms.TextBox();
@@ -82,9 +86,6 @@
             this.button_LS = new System.Windows.Forms.Button();
             this.button_LF = new System.Windows.Forms.Button();
             this.panel2 = new System.Windows.Forms.Panel();
-            this.button_FPS = new System.Windows.Forms.Button();
-            this.textBox_FPS = new System.Windows.Forms.TextBox();
-            this.label8 = new System.Windows.Forms.Label();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.panel1.SuspendLayout();
             this.panel3.SuspendLayout();
@@ -232,6 +233,38 @@
             this.button_cameraON.TabIndex = 7;
             this.button_cameraON.Text = "ON";
             this.button_cameraON.UseVisualStyleBackColor = true;
+            // 
+            // button_FPS
+            // 
+            this.button_FPS.Location = new System.Drawing.Point(769, 34);
+            this.button_FPS.Name = "button_FPS";
+            this.button_FPS.Size = new System.Drawing.Size(75, 23);
+            this.button_FPS.TabIndex = 6;
+            this.button_FPS.Text = "Apply";
+            this.button_FPS.UseVisualStyleBackColor = true;
+            this.button_FPS.Visible = false;
+            this.button_FPS.Click += new System.EventHandler(this.button_FPS_Click);
+            // 
+            // textBox_FPS
+            // 
+            this.textBox_FPS.Location = new System.Drawing.Point(712, 36);
+            this.textBox_FPS.Name = "textBox_FPS";
+            this.textBox_FPS.Size = new System.Drawing.Size(51, 20);
+            this.textBox_FPS.TabIndex = 5;
+            this.textBox_FPS.Text = "1";
+            this.textBox_FPS.Visible = false;
+            // 
+            // label8
+            // 
+            this.label8.AutoSize = true;
+            this.label8.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label8.ForeColor = System.Drawing.Color.White;
+            this.label8.Location = new System.Drawing.Point(675, 39);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(34, 13);
+            this.label8.TabIndex = 4;
+            this.label8.Text = "FPS:";
+            this.label8.Visible = false;
             // 
             // button_Disconnect
             // 
@@ -682,38 +715,6 @@
             this.panel2.Size = new System.Drawing.Size(1053, 3);
             this.panel2.TabIndex = 2;
             // 
-            // button_FPS
-            // 
-            this.button_FPS.Location = new System.Drawing.Point(769, 34);
-            this.button_FPS.Name = "button_FPS";
-            this.button_FPS.Size = new System.Drawing.Size(75, 23);
-            this.button_FPS.TabIndex = 6;
-            this.button_FPS.Text = "Apply";
-            this.button_FPS.UseVisualStyleBackColor = true;
-            this.button_FPS.Visible = false;
-            this.button_FPS.Click += new System.EventHandler(this.button_FPS_Click);
-            // 
-            // textBox_FPS
-            // 
-            this.textBox_FPS.Location = new System.Drawing.Point(712, 36);
-            this.textBox_FPS.Name = "textBox_FPS";
-            this.textBox_FPS.Size = new System.Drawing.Size(51, 20);
-            this.textBox_FPS.TabIndex = 5;
-            this.textBox_FPS.Text = "1";
-            this.textBox_FPS.Visible = false;
-            // 
-            // label8
-            // 
-            this.label8.AutoSize = true;
-            this.label8.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label8.ForeColor = System.Drawing.Color.White;
-            this.label8.Location = new System.Drawing.Point(675, 39);
-            this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(34, 13);
-            this.label8.TabIndex = 4;
-            this.label8.Text = "FPS:";
-            this.label8.Visible = false;
-            // 
             // pictureBox1
             // 
             this.pictureBox1.Location = new System.Drawing.Point(195, 46);
@@ -731,6 +732,7 @@
             this.Controls.Add(this.panel2);
             this.Controls.Add(this.panel3);
             this.Controls.Add(this.panel1);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MinimumSize = new System.Drawing.Size(1069, 306);
             this.Name = "Form1";
             this.Text = "AdvancedTankControl";
