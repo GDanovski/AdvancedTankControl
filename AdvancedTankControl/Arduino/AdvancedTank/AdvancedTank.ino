@@ -19,10 +19,10 @@ const int camPin=4;//up to start transmiting images
 const int powPin=32;//up to turn on the ESP32-CAM
 const int VGA = 13;//If High - QQVGA, else - QQQVGA
 //define H-brige pins
-const int M1Forward=25;
-const int M1Reverse=33;
-const int M2Forward=27;
-const int M2Reverse=26;
+const int M1Forward=33;
+const int M1Reverse=25;
+const int M2Forward=26;
+const int M2Reverse=27;
 
 //define PWN servo pins
 const int Servo1=18;
@@ -105,7 +105,7 @@ void setup() {
   digitalWrite(LED,LOW);
   //reset the servo position
   Serial.println("Reset the servo position...");
-  ledcWrite(Servo1Channel, ServoMin);
+  ledcWrite(Servo1Channel, ServoMax);
   delay(2000);//delay for hardware movement
   ledcWrite(Servo2Channel, ServoMin);
   delay(2000);//delay for hardware movement

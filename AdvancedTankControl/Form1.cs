@@ -203,6 +203,36 @@ namespace AdvancedTankControl
                         button_speed_4.PerformClick();
                         e.Handled = true;
                         break;
+                    case Keys.W:
+                        button_RF.PerformClick();
+                        Thread.Sleep(100);
+                        button_LF.PerformClick();
+                        e.Handled = true;
+                        break;
+                    case Keys.S:
+                        button_RR.PerformClick();
+                        Thread.Sleep(100);
+                        button_LR.PerformClick();
+                        e.Handled = true;
+                        break;
+                    case Keys.Space:
+                        button_RS.PerformClick();
+                        Thread.Sleep(100);
+                        button_LS.PerformClick();
+                        e.Handled = true;
+                        break;
+                    case Keys.A:
+                        button_RF.PerformClick();
+                        Thread.Sleep(100);
+                        button_LR.PerformClick();
+                        e.Handled = true;
+                        break;
+                    case Keys.D:
+                        button_RR.PerformClick();
+                        Thread.Sleep(100);
+                        button_LF.PerformClick();
+                        e.Handled = true;
+                        break;
                     default:
                         break;
                 }
@@ -291,7 +321,7 @@ namespace AdvancedTankControl
                 return;
             }
             //reset servo positions and LED_On/Off
-            ServoPosition_Reset(trackBar_S1);
+            ServoPosition_Reset(trackBar_S1,stopServo);
             ServoPosition_Reset(trackBar_S2);
             ServoPosition_Reset(trackBar_S3);
             button_ledOn.Enabled = true;
@@ -304,12 +334,12 @@ namespace AdvancedTankControl
             else
                 NetworkClient_Start1(ipepNew);
         }
-        private void ServoPosition_Reset(TrackBar tb)
+        private void ServoPosition_Reset(TrackBar tb,int position = startServo)
         {
             tb.Enabled = false;
             tb.Minimum = startServo;
             tb.Maximum = stopServo;
-            tb.Value = startServo;
+            tb.Value = position;
             tb.Enabled = true;
         }
         private void NetworkClient_Start(IPEndPoint ipepNew)
