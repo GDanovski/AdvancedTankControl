@@ -3,4 +3,4 @@ This project contains arduino code for ESP32S tank project and C# code for Windo
 
 The project is based on the esp-cam-demo by Ivan Grokhotkov (https://github.com/igrr/esp32-cam-demo) and ESP32CameraI2S by 
 bitluni's lab (https://github.com/bitluni/ESP32CameraI2S)
-[![Video](https://github.com/GDanovski/AdvancedTankControl/blob/master/CamTank.png)](https://www.youtube.com/watch?v=9Y8_yeDwduU)
+[![Video](https://img.youtube.com/vi/9Y8_yeDwduU/hqdefault.jpg)](https://youtu.be/9Y8_yeDwduU)
